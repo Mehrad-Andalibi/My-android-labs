@@ -10,91 +10,102 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const LoginPage(),
-    );
-  }
-}
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Browse Categories", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+          centerTitle: true,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between sections
+            children: [
+              Text(
+                "Not sure about exactly which recipe you're looking for? Do a search, or dive into our most popular categories.",
+                textAlign: TextAlign.center,
+              ),
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+              // By Meat Section
+              Align(
+                alignment: Alignment.topCenter,
+                child: Text("BY MEAT", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  categoryItem("images/beef.jpg", "BEEF"),
+                  categoryItem("images/chicken.jpg", "CHICKEN"),
+                  categoryItem("images/pork.jpg", "PORK"),
+                  categoryItem("images/seafood.jpg", "SEAFOOD"),
+                ],
+              ),
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
+              // By Course Section
+              Text("BY COURSE", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  categoryItemBottomText("images/main_dish.jpg", "Main Dishes"),
+                  categoryItemBottomText("images/salad.jpg", "Salad Recipes"),
+                  categoryItemBottomText("images/side_dish.jpg", "Side Dishes"),
+                  categoryItemBottomText("images/crockpot.jpg", "Crockpot"),
+                ],
+              ),
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _loginController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  var imageSource = "images/question-mark.png";
-
-  void _validateLogin() {
-    setState(() {
-      if (_passwordController.text == "QWERTY123") {
-        imageSource = "images/light-bulb.png";
-      } else {
-        imageSource = "images/stop-sign.png";
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Flutter Demo Home Page"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextField(
-                  controller: _loginController,
-                  decoration: const InputDecoration(
-                    labelText: "Login",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: _validateLogin,
-                  child: const Text("Login"),
-                ),
-                const SizedBox(height: 16.0),
-                Image.asset(
-                  imageSource,
-                  width: 300,
-                  height: 300,
-                ),
-              ],
-            ),
+              // By Dessert Section
+              Text("BY DESSERT", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  categoryItemBottomText("images/ice_cream.jpg", "Ice Cream"),
+                  categoryItemBottomText("images/brownies.jpg", "Brownies"),
+                  categoryItemBottomText("images/pies.jpg", "Pies"),
+                  categoryItemBottomText("images/cookies.jpg", "Cookies"),
+                ],
+              ),
+            ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Action for floating button (optional)
-        },
-        child: const Icon(Icons.add),
-      ),
+    );
+  }
+
+  // Function for Stack Layout with Text in the Center of Image
+  Widget categoryItem(String imagePath, String label) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        CircleAvatar(
+          backgroundImage: AssetImage(imagePath),
+          radius: 80,
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white, backgroundColor: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  // Function for Stack Layout with Text at Bottom of Image
+  Widget categoryItemBottomText(String imagePath, String label) {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        CircleAvatar(
+          backgroundImage: AssetImage(imagePath),
+          radius: 80,
+        ),
+        Container(
+          padding: EdgeInsets.all(5),
+          color: Colors.black54,
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }

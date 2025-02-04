@@ -64,23 +64,25 @@ class _LoginPageState extends State<LoginPage> {
           _passwordController.text = savedPassword; // Populate password field
         });
 
-        // Show a snackbar indicating that previous login details were loaded
-        Future.delayed(const Duration(seconds: 3), (){
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Previous login details loaded.'),
-            action: SnackBarAction(
-              label: 'Undo', // Label for undo action
-              onPressed: () {
-                setState(() {
-                  _loginController.clear(); // Clear login field
-                  _passwordController.clear(); // Clear password field
-                });
-              },
+        // Delay showing the SnackBar by 3 seconds
+        Future.delayed(const Duration(seconds: 3), () {
+          // Show a snackbar indicating that previous login details were loaded
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Previous login details loaded.'),
+              action: SnackBarAction(
+                label: 'Undo', // Label for undo action
+                onPressed: () {
+                  setState(() {
+                    _loginController.clear(); // Clear login field
+                    _passwordController.clear(); // Clear password field
+                  });
+                },
+              ),
             ),
-          ),
-        );
-      });
+          );
+        });
+      }
     } catch (e) {
       // Handle any errors that occur while retrieving encrypted data
       print('Error loading credentials: \$e');

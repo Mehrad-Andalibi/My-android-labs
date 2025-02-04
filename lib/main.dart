@@ -65,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
         });
 
         // Show a snackbar indicating that previous login details were loaded
+        Future.delayed(const Duration(seconds: 3), (){
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Previous login details loaded.'),
@@ -79,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         );
-      }
+      });
     } catch (e) {
       // Handle any errors that occur while retrieving encrypted data
       print('Error loading credentials: \$e');

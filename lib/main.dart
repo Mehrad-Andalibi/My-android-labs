@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 // Importing the package for securely storing data using encrypted shared preferences
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 
+import 'ProfilePage.dart';
+import 'UserRepository.dart';
+
 // Entry point of the Flutter application
 void main() {
   runApp(const MyApp()); // Runs the MyApp widget as the root of the application
@@ -95,6 +98,20 @@ class _LoginPageState extends State<LoginPage> {
       // Check if the password matches the predefined value
       if (_passwordController.text == "QWERTY123") {
         imageSource = "images/light-bulb.png"; // Display light-bulb image for correct password
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Welcome Back, ${_loginController.text}'),
+          ),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilePage(
+              loginName: _loginController.text,
+              userRepository: UserRepository(),
+            ),
+          ),
+        );
       } else {
         imageSource = "images/stop-sign.png"; // Display stop-sign image for incorrect password
       }

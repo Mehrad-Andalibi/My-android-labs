@@ -1,152 +1,196 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:floor/floor.dart';
+import 'database.dart';
+import 'todo.dart';
+import 'details_page.dart';
 
-void main() {
-  debugPaintSizeEnabled = false; // Hide layout debugging
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final database = await $FloorAppDatabase
+      .databaseBuilder('app_database.db')
+      .build();
+
+  runApp(MyApp(database));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AppDatabase database;
+
+  MyApp(this.database);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: true, // Show debug banner as in the provided screenshot
-      title: 'Flutter Demo Home Page',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: const ShoppingListPage(),
+      home: HomePage(database),
     );
   }
 }
 
-class ShoppingListPage extends StatefulWidget {
-  const ShoppingListPage({super.key});
+class HomePage extends StatefulWidget {
+  final AppDatabase database;
+
+  HomePage(this.database);
 
   @override
-  State<ShoppingListPage> createState() => _ShoppingListPageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _ShoppingListPageState extends State<ShoppingListPage> {
-  final TextEditingController _itemController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-  final List<Map<String, String>> _shoppingList = [];
+class _HomePageState extends State<HomePage> {
+  final TextEditingController _controller = TextEditingController();
+  List<Todo> _items = [];
+  Todo? _selectedItem;
 
-  void _addItem() {
-    if (_itemController.text.isNotEmpty && _quantityController.text.isNotEmpty) {
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  Future<void> _loadItems() async {
+    final items = await widget.database.todoDao.findAllTodos();
+    setState(() {
+      _items = items;
+    });
+  }
+
+  void _addItem() async {
+    if (_controller.text.isNotEmpty) {
+      final newTodo = Todo(
+        _items.isEmpty ? 1 : _items.last.id + 1,
+        _controller.text,
+      );
+      await widget.database.todoDao.insertTodo(newTodo);
       setState(() {
-        _shoppingList.add({
-          'item': _itemController.text,
-          'quantity': _quantityController.text,
-        });
-        _itemController.clear(); // Clear input fields
-        _quantityController.clear();
+        _items.add(newTodo);
+        _controller.clear();
       });
     }
   }
 
-  void _removeItem(int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Remove Item'),
-          content: const Text('Are you sure you want to delete this item?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog without removing item
-              },
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _shoppingList.removeAt(index);
-                });
-                Navigator.of(context).pop(); // Close dialog
-              },
-              child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
+  void _deleteItem(Todo item) async {
+    await widget.database.todoDao.deleteTodo(item);
+    setState(() {
+      _items.remove(item);
+      if (_selectedItem == item) {
+        _selectedItem = null;
+      }
+    });
   }
+
+  void _onItemTap(Todo item) {
+    setState(() {
+      _selectedItem = item;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
+    bool isLandscape = (size.width>size.height)&&(size.width>720);
+
     return Scaffold(
+      backgroundColor: Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text('Flutter Demo Home Page'),
-        centerTitle: true,
-        backgroundColor: Colors.purple[200],
+        title: Text('Flutter Demo Home Page'),
+        backgroundColor: Color(0xFFD1C4E9),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
+      body: Stack(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                flex: (isLandscape ? 2 : 1) ,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: _addItem,
+                            child: Text('Add'),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                                ),
+                                hintText: 'Enter a todo item',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: _items.isEmpty
+                            ? Center(child: Text('There are no items in the list'))
+                            : ListView.builder(
+                          itemCount: _items.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                _onItemTap(_items[index]);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text('Row number: $index'),
+                                    Text(_items[index].title),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (isLandscape && _selectedItem != null)
                 Expanded(
-                  child: TextField(
-                    controller: _itemController,
-                    decoration: const InputDecoration(
-                      labelText: 'Type the item here',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _quantityController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Type the quantity here',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _addItem,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple[100],
-                  ),
-                  child: const Text('Click here'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: _shoppingList.isEmpty
-                  ? const Center(
-                child: Text(
-                  'There are no items in the list.',
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-                  : ListView.builder(
-                itemCount: _shoppingList.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onLongPress: () => _removeItem(index),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Text(
-                        '${index + 1}: ${_shoppingList[index]['item']}   quantity: ${_shoppingList[index]['quantity']}',
-                        style: const TextStyle(fontSize: 16),
+                  flex: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(
+                        left: BorderSide(color: Colors.grey[300]!),
                       ),
                     ),
-                  );
-                },
+                    child: DetailsPage(todo: _selectedItem!, onDelete: _deleteItem),
+                  ),
+                ),
+            ],
+          ),
+          if ( !isLandscape)
+            if (_selectedItem != null)
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                left: 0,
+                child: Container(
+                  color: Colors.white,
+                  child: DetailsPage(todo: _selectedItem!, onDelete: _deleteItem),
+                ),
               ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

@@ -7,9 +7,7 @@ import 'details_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final database = await $FloorAppDatabase
-      .databaseBuilder('app_database.db')
-      .build();
+  final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
 
   runApp(MyApp(database));
 }
@@ -78,18 +76,41 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _confirmDelete(Todo item) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Deletion'),
+          content: Text('Are you sure you want to delete this item?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteItem(item);
+                Navigator.of(context).pop();
+              },
+              child: Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _onItemTap(Todo item) {
     setState(() {
       _selectedItem = item;
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
-    bool isLandscape = (size.width>size.height)&&(size.width>720);
+    bool isLandscape = (size.width > size.height) && (size.width > 720);
 
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
@@ -102,7 +123,7 @@ class _HomePageState extends State<HomePage> {
           Row(
             children: [
               Expanded(
-                flex: (isLandscape ? 2 : 1) ,
+                flex: (isLandscape ? 2 : 1),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -137,8 +158,9 @@ class _HomePageState extends State<HomePage> {
                           itemCount: _items.length,
                           itemBuilder: (context, index) {
                             return GestureDetector(
-                              onTap: () {
-                                _onItemTap(_items[index]);
+                              onTap: () => _onItemTap(_items[index]),
+                              onLongPress: () {
+                                _confirmDelete(_items[index]);
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -178,18 +200,17 @@ class _HomePageState extends State<HomePage> {
                 ),
             ],
           ),
-          if ( !isLandscape)
-            if (_selectedItem != null)
-              Positioned(
-                top: 0,
-                bottom: 0,
-                right: 0,
-                left: 0,
-                child: Container(
-                  color: Colors.white,
-                  child: DetailsPage(todo: _selectedItem!, onDelete: _deleteItem),
-                ),
+          if (!isLandscape && _selectedItem != null)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              left: 0,
+              child: Container(
+                color: Colors.white,
+                child: DetailsPage(todo: _selectedItem!, onDelete: _deleteItem),
               ),
+            ),
         ],
       ),
     );

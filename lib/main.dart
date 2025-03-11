@@ -70,40 +70,19 @@ class _HomePageState extends State<HomePage> {
     await widget.database.todoDao.deleteTodo(item);
     setState(() {
       _items.remove(item);
-      if (_selectedItem == item) {
-        _selectedItem = null;
-      }
+      _selectedItem = null;
     });
-  }
-
-  void _confirmDelete(Todo item) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Deletion'),
-          content: Text('Are you sure you want to delete this item?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _deleteItem(item);
-                Navigator.of(context).pop();
-              },
-              child: Text('Delete', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _onItemTap(Todo item) {
     setState(() {
       _selectedItem = item;
+    });
+  }
+
+  void _closeDetails() {
+    setState(() {
+      _selectedItem = null;
     });
   }
 
@@ -118,99 +97,81 @@ class _HomePageState extends State<HomePage> {
         title: Text('Flutter Demo Home Page'),
         backgroundColor: Color(0xFFD1C4E9),
       ),
-      body: Stack(
+      body: isLandscape
+          ? Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: _buildListView(),
+          ),
+          if (_selectedItem != null)
+            Expanded(
+              flex: 2,
+              child: DetailsPage(todo: _selectedItem!, onDelete: _deleteItem, onClose: _closeDetails),
+            ),
+        ],
+      )
+          : _selectedItem == null
+          ? _buildListView()
+          : DetailsPage(todo: _selectedItem!, onDelete: _deleteItem, onClose: _closeDetails),
+    );
+  }
+
+  Widget _buildListView() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
+              ElevatedButton(
+                onPressed: _addItem,
+                child: Text('Add'),
+              ),
+              SizedBox(width: 8),
               Expanded(
-                flex: (isLandscape ? 2 : 1),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: _addItem,
-                            child: Text('Add'),
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _controller,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                                ),
-                                hintText: 'Enter a todo item',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: _items.isEmpty
-                            ? Center(child: Text('There are no items in the list'))
-                            : ListView.builder(
-                          itemCount: _items.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () => _onItemTap(_items[index]),
-                              onLongPress: () {
-                                _confirmDelete(_items[index]);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: Colors.grey[300]!),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text('Row number: $index'),
-                                    Text(_items[index].title),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                    ),
+                    hintText: 'Enter a todo item',
                   ),
                 ),
               ),
-              if (isLandscape && _selectedItem != null)
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                        left: BorderSide(color: Colors.grey[300]!),
-                      ),
-                    ),
-                    child: DetailsPage(todo: _selectedItem!, onDelete: _deleteItem),
-                  ),
-                ),
             ],
           ),
-          if (!isLandscape && _selectedItem != null)
-            Positioned(
-              top: 0,
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: Container(
-                color: Colors.white,
-                child: DetailsPage(todo: _selectedItem!, onDelete: _deleteItem),
-              ),
+          SizedBox(height: 16),
+          Expanded(
+            child: _items.isEmpty
+                ? Center(child: Text('There are no items in the list'))
+                : ListView.builder(
+              itemCount: _items.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => _onItemTap(_items[index]),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text('Row number: $index'),
+                        Text(_items[index].title),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
+          ),
         ],
       ),
     );

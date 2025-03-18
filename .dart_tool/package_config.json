@@ -93,7 +93,11 @@
     },
     {
       "name": "built_value",
+
       "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/built_value-8.9.5",
+
+
+
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -291,9 +295,15 @@
     },
     {
       "name": "js",
-      "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/js-0.7.1",
+      "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/js-0.6.7",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "json_annotation",
+      "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/json_annotation-4.9.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "json_annotation",
@@ -363,7 +373,11 @@
     },
     {
       "name": "package_config",
+
       "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/package_config-2.2.0",
+
+
+
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -429,7 +443,11 @@
     },
     {
       "name": "pub_semver",
+
       "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/pub_semver-2.2.0",
+
+
+
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -561,7 +579,11 @@
     },
     {
       "name": "sqlite3",
+
       "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/sqlite3-2.7.5",
+
+
+
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -645,9 +667,12 @@
     },
     {
       "name": "url_launcher_android",
+
       "rootUri": "file:///C:/Users/mhrda/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_android-6.3.15",
       "packageUri": "lib/",
       "languageVersion": "3.6"
+
+
     },
     {
       "name": "url_launcher_ios",
@@ -740,7 +765,9 @@
       "languageVersion": "3.3"
     }
   ],
+
   "generated": "2025-03-11T15:54:17.884897Z",
+
   "generator": "pub",
   "generatorVersion": "3.6.1",
   "flutterRoot": "file:///C:/flutter",
